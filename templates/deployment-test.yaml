@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Minimal deployment test for AI infrastructure project
+
+Resources:
+
+  TestBucket:
+    Type: AWS::S3::Bucket
+
+Outputs:
+
+  BucketName:
+    Description: Name of the test bucket
+    Value: !Ref TestBucket

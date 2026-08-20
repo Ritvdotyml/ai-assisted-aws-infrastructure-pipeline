@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Simple serverless API using API Gateway, Lambda (Python 3.12), and DynamoDB.
+
+Resources:
+
+  # ── DynamoDB ──────────────────────────────────────────────────────────────
+  ItemsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  # ── Lambda execution role ─────────────────────────────────────────────────
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DynamoDBWriteAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: dynamodb:PutItem
+                Resource: !GetAtt ItemsTable.Arn
+
+  # ── Lambda function ───────────────────────────────────────────────────────
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.12
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ItemsTable
+      Code:
+        ZipFile: |
+          import json, os, uuid, boto3
+
+          table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
+
+          def handler(event, context):
+              body = json.loads(event.get("body") or "{}")
+              item = {"id": str(uuid.uuid4()), **body}
+              table.put_item(Item=item)
+              return {
+                  "statusCode": 201,
+                  "body": json.dumps({"id": item["id"]}),
+              }
+
+  # ── API Gateway ───────────────────────────────────────────────────────────
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ServerlessApi
+
+  ItemsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApi
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: items
+
+  PostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !Ref ItemsResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Arn}/invocations
+          - Arn: !GetAtt ApiFunction.Arn
+
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: PostMethod
+    Properties:
+      RestApiId: !Ref RestApi
+      StageName: prod
+
+  # ── Permission: API Gateway → Lambda ─────────────────────────────────────
+  ApiGatewayInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt ApiFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/POST/items
+
+Outputs:
+  ApiEndpoint:
+    Description: POST endpoint for creating items
+    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/items

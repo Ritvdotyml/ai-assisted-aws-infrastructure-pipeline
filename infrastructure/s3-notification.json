@@ -1,0 +1,38 @@
+	{
+	    "LambdaFunctionConfigurations": [
+	        {
+	            "Id": "TemplateValidationTrigger",
+		    "LambdaFunctionArn": "arn:aws:lambda:YOUR_AWS_REGION:YOUR_AWS_ACCOUNT_ID:function:YOUR_TEMPLATE_PROCESSOR_FUNCTION",
+	            "Events": [
+	                "s3:ObjectCreated:*"
+	            ],
+	            "Filter": {
+	                "Key": {
+	                    "FilterRules": [
+	                        {
+	                            "Name": "prefix",
+	                            "Value": "templates/"
+	                        }
+	                    ]
+	                }
+	            }
+	        },
+	        {
+	            "Id": "TemplateDeploymentTrigger",
+	            "LambdaFunctionArn": "arn:aws:lambda:YOUR_AWS_REGION:AWS_ACCOUNT:function:TEMPLATE_PROCESSOR",
+	            "Events": [
+	                "s3:ObjectCreated:*"
+	            ],
+	            "Filter": {
+	                "Key": {
+	                    "FilterRules": [
+	                        {
+	                            "Name": "prefix",
+	                            "Value": "deploy/"
+	                        }
+	                    ]
+	                }
+	            }
+	        }
+	    ]
+	}

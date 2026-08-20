@@ -1,0 +1,6 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Simple test template for the AI infrastructure project
+
+Resources:
+  TestBucket:
+    Type: AWS::S3::Bucket

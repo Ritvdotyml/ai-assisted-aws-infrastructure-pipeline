@@ -1,0 +1,38 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "ProjectBucketAccess",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:PutObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::q-developer-templates-TEMPLATE_BUCKET_NUMBER",
+                "arn:aws:s3:::q-developer-templates-TEMPPLATE_BUCKET_NUMBER/*"
+            ]
+        },
+        {
+            "Sid": "CloudFormationOperations",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:ValidateTemplate",
+                "cloudformation:CreateStack",
+                "cloudformation:DescribeStacks",
+                "cloudformation:DescribeStackEvents"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "PassCloudFormationRole",
+            "Effect": "Allow",
+            "Action": [
+                "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::AWS_ACCOUNT:role/CLOUDFORMATION_ROLE_PLACEHOLDER"
+        }
+    ]
+}

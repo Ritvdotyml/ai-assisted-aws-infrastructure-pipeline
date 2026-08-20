@@ -1,0 +1,72 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "LambdaManagement",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:CreateFunction",
+                "lambda:DeleteFunction",
+                "lambda:GetFunction",
+                "lambda:GetFunctionConfiguration",
+                "lambda:UpdateFunctionCode",
+                "lambda:UpdateFunctionConfiguration",
+                "lambda:AddPermission",
+                "lambda:RemovePermission",
+                "lambda:TagResource",
+                "lambda:UntagResource"
+            ],
+            "Resource": "*"
+        },
+        {
+    "Sid": "S3BucketManagement",
+    "Effect": "Allow",
+    "Action": [
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+        "s3:PutBucketTagging",
+        "s3:GetBucketTagging"
+    ],
+    "Resource": "*"
+},
+        {
+            "Sid": "DynamoDBManagement",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:CreateTable",
+                "dynamodb:DeleteTable",
+                "dynamodb:DescribeTable",
+                "dynamodb:UpdateTable",
+                "dynamodb:TagResource",
+                "dynamodb:UntagResource"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "ApiGatewayManagement",
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "IAMRoleManagement",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:GetRole",
+                "iam:PassRole",
+                "iam:PutRolePolicy",
+                "iam:DeleteRolePolicy",
+                "iam:GetRolePolicy",
+                "iam:TagRole",
+                "iam:UntagRole",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

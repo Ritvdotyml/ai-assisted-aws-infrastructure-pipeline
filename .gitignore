@@ -1,0 +1,25 @@
+# Local environment/configuration
+project.env
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+
+# Lambda deployment packages
+*.zip
+
+# Editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Account-specific infrastructure configuration
+*.local.json
+
+# Raw project evidence - may contain AWS account-specific information
+evidence/
