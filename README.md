@@ -20,8 +20,9 @@ S3 object created under templates/ or deploy/
   -> deployed app exposes API Gateway POST /items
   -> Lambda writes to DynamoDB
 ```
-##Project architecture diagram
 <img width="549" height="1834" alt="image" src="https://github.com/user-attachments/assets/7664e88d-afd1-45af-a095-b2b818886ae4" />
+
+
 
 ## What This Repository Contains
 
