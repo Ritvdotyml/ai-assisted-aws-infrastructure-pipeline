@@ -32,12 +32,3 @@ The application path is confirmed by the curated incident history:
 - the Lambda wrote to DynamoDB,
 - and the successful request returned HTTP `201`.
 
-## Public write-up guidance
-
-When you describe the test results in public documentation, keep the framing factual:
-
-- state what was tested,
-- state the observed result,
-- and avoid reproducing raw AWS logs or unique identifiers.
-
-If you want this section to read like a fully documented case study, add the exact API request and a sanitized response snippet to your private notes, not to the public repo.
