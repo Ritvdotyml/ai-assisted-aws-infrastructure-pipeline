@@ -1,34 +1,47 @@
 # Testing
 
-This section is based on evidence from the actual implementation, not on synthetic examples.
+The following tests were run against the implemented pipeline and deployed application.
 
 ## Test matrix
 
-| Test | Evidence used | Observed result |
-|---|---|---|
-| Valid template validation | `incident-history.md`, `template-processor-lambda-logs.txt` | Validation succeeded and a validation JSON artifact was written to S3. |
-| Invalid template validation | `invalid-template-validation-error.json`, `template-processor-errors.json` | CloudFormation rejected the template because the YAML was not well formed. |
-| Deployment gate | `incident-history.md`, `template-processor-lambda-logs.txt` | `deploy/` objects triggered validation and stack creation authorization. |
-| Deployment smoke test | `incident-history.md`, `template-processor-lambda-logs.txt` | The deployment test stack reached `CREATE_COMPLETE` after permissions were corrected. |
-| API Gateway test | `incident-history.md` | A request to the deployed API returned HTTP `201`, and the created item was verified in DynamoDB. |
+| Test | Result |
+|---|---|
+| Valid template validation | Validation succeeded and a JSON result file was written to S3. |
+| Invalid template validation | CloudFormation rejected the malformed YAML as expected. |
+| Deployment gate | Objects under `deploy/` triggered validation followed by stack creation. |
+| Deployment smoke test | The test stack reached `CREATE_COMPLETE` after the required role permissions were added. |
+| API Gateway test | A request to the deployed API returned HTTP `201`, and the new item was stored in DynamoDB. |
 
-## What the evidence proves
+## Validation path
 
-The validation path is confirmed by the Lambda logs and the invalid-template result file:
+The validation-only path was tested with both valid and invalid templates.
 
-- valid templates were accepted,
-- malformed YAML was rejected by `validate_template`,
-- and the Lambda wrote the outcome back to S3.
+For valid templates:
 
-The deployment path is confirmed by the incident history and the processor logs:
+- `validate_template` completed successfully,
+- the processor wrote a validation result to S3,
+- and no deployment was started.
 
-- objects under `deploy/` were treated as deployment candidates,
-- CloudFormation stack creation was attempted from the processor,
-- and deployment permissions had to be expanded before the stack completed successfully.
+For the intentionally invalid template:
 
-The application path is confirmed by the curated incident history:
+- CloudFormation rejected the malformed YAML,
+- the processor caught the validation failure,
+- and an error result was written back to S3.
 
-- API Gateway fronted the Lambda function,
-- the Lambda wrote to DynamoDB,
-- and the successful request returned HTTP `201`.
+## Deployment path
 
+Objects uploaded under `deploy/` were processed through validation first and then passed to CloudFormation for stack creation.
+
+The initial deployment tests exposed missing IAM permissions in the CloudFormation service role. After those permissions were added, the deployment smoke-test stack completed successfully.
+
+## Application test
+
+The deployed API was tested through its API Gateway endpoint.
+
+A `POST /items` request:
+
+- reached the application Lambda,
+- returned HTTP `201`,
+- and created the corresponding item in DynamoDB.
+
+This confirmed the complete API Gateway -> Lambda -> DynamoDB path.
