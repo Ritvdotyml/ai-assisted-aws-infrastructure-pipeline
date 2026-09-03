@@ -62,17 +62,7 @@ A few implementation details were kept deliberately simple:
 - Validation and deployment results are written back to S3 instead of requiring a separate state database.
 - CloudFormation uses its own deployment role rather than relying on broad permissions in the processor Lambda role.
 - The deployed application can be tested independently from the template-processing pipeline.
-
-## Issues encountered during implementation
-
-The deployment path exposed several permission gaps in the CloudFormation role, which were corrected as they appeared during testing.
-
-The processor package also failed once because of inconsistent indentation in `lambda/index.py`. The corrected file was checked locally with:
-
-```bash
-python3 -m py_compile lambda/index.py
-```
-
+- 
 ## Future improvements
 
 - Add a CI step that validates CloudFormation templates before they are uploaded to S3.
